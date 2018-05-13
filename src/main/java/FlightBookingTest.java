@@ -1,26 +1,34 @@
+package flight;
+
 import com.sun.javafx.PlatformUtil;
+
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriver.Timeouts;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class FlightBookingTest {
 
-    WebDriver driver = new ChromeDriver();
-
+    //WebDriver driver = new ChromeDriver();
+    private static WebDriver driver;
 
     @Test
-    public void testThatResultsAppearForAOneWayJourney() {
+    public void testThatResultsAppearForAOneWayJourney() throws InterruptedException {
 
         setDriverPath();
         driver.get("https://www.cleartrip.com/");
         waitFor(2000);
+        
         driver.findElement(By.id("OneWay")).click();
 
         driver.findElement(By.id("FromTag")).clear();
@@ -28,16 +36,16 @@ public class FlightBookingTest {
 
         //wait for the auto complete options to appear for the origin
 
-        waitFor(2000);
+       // waitFor(2000);
         List<WebElement> originOptions = driver.findElement(By.id("ui-id-1")).findElements(By.tagName("li"));
-        originOptions.get(0).click();
+       originOptions.get(0).click();
 
-        driver.findElement(By.id("toTag")).clear();
-        driver.findElement(By.id("toTag")).sendKeys("Delhi");
+        driver.findElement(By.id("ToTag")).clear();
+        driver.findElement(By.id("ToTag")).sendKeys("Delhi");
 
         //wait for the auto complete options to appear for the destination
 
-        waitFor(2000);
+       // waitFor(2000);
         //select the first item from the destination auto complete list
         List<WebElement> destinationOptions = driver.findElement(By.id("ui-id-2")).findElements(By.tagName("li"));
         destinationOptions.get(0).click();
@@ -57,12 +65,8 @@ public class FlightBookingTest {
     }
 
 
-    private void waitFor(int durationInMilliSeconds) {
-        try {
-            Thread.sleep(durationInMilliSeconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+    private void waitFor(int durationInMilliSeconds) throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(durationInMilliSeconds, TimeUnit.MILLISECONDS);
     }
 
 
@@ -75,15 +79,25 @@ public class FlightBookingTest {
         }
     }
 
-    private void setDriverPath() {
+    @SuppressWarnings("restriction")
+	private void setDriverPath() {
         if (PlatformUtil.isMac()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver");
+            System.setProperty("webdriver.chrome.driver", "Path/to/chromedriver"); // one have to give the chromedriver directory where it has been placed
+            driver = new ChromeDriver();
+            driver.manage().window().maximize();
         }
         if (PlatformUtil.isWindows()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+        	ChromeOptions option = new ChromeOptions();
+        	option.addArguments("--disable-notifications");
+            System.setProperty("webdriver.chrome.driver", "C:\\Browser Drivers\\chromdriver\\2.38\\chromedriver.exe");
+            driver = new ChromeDriver(option);
+            driver.manage().window().maximize();
         }
         if (PlatformUtil.isLinux()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver_linux");
+            System.setProperty("webdriver.chrome.driver", "path/to/chromedriver_linux");
+            driver = new ChromeDriver();// one have to give the chromedriver directory where it has been placed
+            driver.manage().window().maximize();
         }
     }
 }
+
